@@ -23,6 +23,7 @@ from lxml import etree
 import MySQLdb
 
 # @pysnooper.snoop()
+#获取网页内容
 def get_page(page):
     baseurl='http://interface.sina.cn/finance/api_feed.d.json?'
     params={
@@ -58,6 +59,7 @@ def get_page(page):
         return None
 
 # @pysnooper.snoop()
+#解析生成文章list
 def paraser_page(content):
 
     articles=content['result']['data']['articles']
@@ -76,7 +78,7 @@ def paraser_page(content):
             'articlecontent':articlecontent,
         }
 
-
+#获取文章详细内容
 def get_article_content(articleurl):
     res1 = requests.get(articleurl)
     res1.encoding = 'utf-8'
@@ -87,6 +89,7 @@ def get_article_content(articleurl):
     return content1
 
 # @pysnooper.snoop()
+#保存到本地文件
 def save_article_txt(item):
     with open(r'C:\Users\guili\Desktop\data.txt','a+',encoding='utf-8') as f:#需要使用encoding=utf8，python写txt默认编码为gbk
         for value in item.values():
@@ -94,23 +97,10 @@ def save_article_txt(item):
         f.write('\n')
     f.close()
 @pysnooper.snoop()
+#保存到mysql
 def save_article_mysql(item):
     con=MySQLdb.connect('localhost','root','abc14102c','spider',charset='utf8mb4')#
     cur=con.cursor()
-
-
-    # cur.execute('DROP TABLE IF EXISTS SINAZL')
-    # sql='''
-    # CREATE TABLE SINAZL(
-    # title VARCHAR(100)  NOT NULL,
-    # author_name VARCHAR(10),
-    # summary_article VARCHAR(400),
-    # publish_time VARCHAR(20),
-    # article_content nvarchar(1000)
-    # )'''
-    # cur.execute(sql)
-    # 字典转化为元组
-    # data=(item.get('title'),item.get('author_name'),item.get('summary'),item.get('publish_time'),item.get('articlecontent'))
     data=(item["title"],item["author_name"],item["summary"],item["publish_time"],item["articlecontent"])
     print(data)
     insertsql='INSERT INTO SINAZL (title,author_name,summary_article,publish_time,article_content) VALUES (%s,%s,%s,%s,%s)'
